@@ -1,0 +1,36 @@
+[tool.poetry]
+name = "com_portfolio"
+version = "0.1.0"
+description = "Stock portfolio web service"
+authors = [
+    "Danila Korobkov <korobkov.danila.yurevich@gmail.com>",
+]
+maintainers = [
+    "Danila Korobkov <korobkov.danila.yurevich@gmail.com>",
+]
+readme = "README.md"
+homepage = "https://github.com/DanilaKorobkov/com_portfolio"
+repository = "https://github.com/DanilaKorobkov/com_portfolio"
+documentation = "https://github.com/DanilaKorobkov/com_portfolio/browse/README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+attrs = "^21.2"
+ujson = "^4.0"
+marshmallow = "^3.12"
+
+[tool.poetry.dev-dependencies]
+add-trailing-comma = "^2.1"
+autopep8 = "^1.5"
+bandit = "^1.7"
+flake8 = "^3.9"
+isort = "^5.8"
+mypy = "^0.812"
+pylint = "^2.8"
+pytest = "^6.2"
+pytest-cov = "^2.12"
+pytest-sugar = "^0.9"
+
+[build-system]
+requires = ["poetry-core>=1.0"]
+build-backend = "poetry.core.masonry.api"
