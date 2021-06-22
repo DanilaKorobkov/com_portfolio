@@ -1,0 +1,2 @@
+class UserHasNoPortfolio(Exception):
+    pass

@@ -1,0 +1,2 @@
+class InvalidAuthorizationHeader(Exception):
+    pass
