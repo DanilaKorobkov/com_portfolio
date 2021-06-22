@@ -2,7 +2,7 @@ import attr
 
 from com_portfolio.domain import Portfolio, PortfolioRepositoryInterface
 
-from .identity_provider import IdentityProviderInterface
+from .identity_providers import IdentityProviderInterface
 
 
 @attr.s(auto_attribs=True, slots=True, frozen=True)

@@ -1,6 +1,6 @@
 from .app import Application
 from .exceptions import InvalidAccessToken
-from .identity_provider import IdentityProviderInterface
+from .identity_providers import IdentityProviderInterface
 
 __all__ = (
     "Application",
