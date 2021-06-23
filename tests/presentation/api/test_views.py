@@ -3,7 +3,7 @@ import uuid
 from http import HTTPStatus
 
 from com_portfolio.application import Application
-from com_portfolio.domain.schemas import PortfolioSchema
+from com_portfolio.domain import PortfolioSchema
 from com_portfolio.infrastructure import (
     FakeIdentityProvider,
     FakePortfolioRepository,
