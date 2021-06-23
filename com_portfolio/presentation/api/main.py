@@ -1,9 +1,11 @@
+import aioredis
 from aiohttp import web
+from environs import Env
 
 from com_portfolio.application import Application
 from com_portfolio.infrastructure import (
     FakeIdentityProvider,
-    FakePortfolioRepository,
+    RedisPortfolioRepository,
 )
 from com_portfolio.presentation import api
 
@@ -13,8 +15,27 @@ def main() -> None:
 
 
 async def create_app() -> web.Application:
+    env = Env()
+
+    redis_client = await aioredis.create_redis_pool(
+        env("REDIS_URL", ""),
+        minsize=env.int("REDIS_POOL_MIN_SIZE", "0"),
+        maxsize=env.int("REDIS_POOL_MAX_SIZE", "5"),
+    )
+
     app = Application(
         FakeIdentityProvider(),
-        FakePortfolioRepository(),
+        RedisPortfolioRepository(redis_client),
     )
-    return api.create_web_app(app)
+    web_app = api.create_web_app(app)
+
+    async def _close_redis_client(_: web.Application) -> None:
+        redis_client.close()
+        await redis_client.wait_closed()
+
+    web_app.on_cleanup.append(_close_redis_client)
+    return web_app
+
+
+if __name__ == "__main__":
+    main()
