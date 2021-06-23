@@ -24,6 +24,7 @@ class TestRedisPortfolioRepository:
                 label: PortfolioSchema().dumps(portfolio),
             },
         )
+
         repository = RedisPortfolioRepository(com_redis_client)
         assert await repository.find_all(user_id) == (portfolio,)
 
@@ -32,8 +33,8 @@ class TestRedisPortfolioRepository:
         com_redis_client: aioredis.Redis,
     ) -> None:
         user_id = uuid.uuid4()
-        repository = RedisPortfolioRepository(com_redis_client)
 
+        repository = RedisPortfolioRepository(com_redis_client)
         assert await repository.find_all(user_id) == tuple()
 
     async def test__find__hit(self, com_redis_client: aioredis.Redis) -> None:
@@ -47,6 +48,7 @@ class TestRedisPortfolioRepository:
                 label: PortfolioSchema().dumps(portfolio),
             },
         )
+
         repository = RedisPortfolioRepository(com_redis_client)
         assert await repository.find(user_id, label) == portfolio
 
@@ -64,8 +66,8 @@ class TestRedisPortfolioRepository:
                 label: PortfolioSchema().dumps(portfolio),
             },
         )
-        repository = RedisPortfolioRepository(com_redis_client)
 
+        repository = RedisPortfolioRepository(com_redis_client)
         with pytest.raises(UserHasNoPortfolio):
             await repository.find(user_id, label="missing_portfolio_label")
 
@@ -74,7 +76,7 @@ class TestRedisPortfolioRepository:
         com_redis_client: aioredis.Redis,
     ) -> None:
         user_id = uuid.uuid4()
-        repository = RedisPortfolioRepository(com_redis_client)
 
+        repository = RedisPortfolioRepository(com_redis_client)
         with pytest.raises(UserHasNoPortfolio):
             await repository.find(user_id, label="portfolio_label")
