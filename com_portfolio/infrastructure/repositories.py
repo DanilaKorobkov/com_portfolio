@@ -37,6 +37,6 @@ class RedisPortfolioRepository(PortfolioRepositoryInterface):
     _schema: _PortfolioSchema = attr.ib(init=False, default=_PortfolioSchema())
 
     async def find(self, user_id: UUID) -> Portfolio:
-        if raw := await self._redis.get(key=user_id.hex, encoding="utf-8"):
+        if raw := await self._redis.get(user_id.hex):
             return self._schema.loads(raw)
         raise UserHasNoPortfolio
