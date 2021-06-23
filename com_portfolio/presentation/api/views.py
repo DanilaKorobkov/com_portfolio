@@ -2,6 +2,7 @@ from aiohttp import web
 
 from com_portfolio.domain.schemas import PortfolioSchema
 
+from .exceptions import InvalidAuthorizationHeader
 from .helpers import get_app
 from .responses import make_json_response
 
@@ -37,6 +38,6 @@ def _get_access_token(request: web.Request) -> str:
     try:
         _, token = request.headers['Authorization'].strip().split()
     except (KeyError, ValueError) as e:
-        raise web.HTTPUnauthorized from e
+        raise InvalidAuthorizationHeader from e
     else:
         return token
