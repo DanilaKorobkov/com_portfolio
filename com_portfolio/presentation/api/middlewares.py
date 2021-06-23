@@ -1,18 +1,37 @@
+import uuid
 from http import HTTPStatus
+from typing import Final
 
 from aiohttp import web
 
 from com_portfolio.application import InvalidAccessToken
 from com_portfolio.domain import UserHasNoPortfolio
+from com_portfolio.presentation.request_id import request_id_set
 
 from .exceptions import InvalidAuthorizationHeader
 from .responses import make_json_response
 from .types import Handler
 
+REQUEST_ID_HEADER: Final = "X-Request-ID"
+
 
 def register_middlewares(web_app: web.Application) -> None:
+    web_app.middlewares.append(request_id_middleware)
     web_app.middlewares.append(authorization_errors_middleware)
     web_app.middlewares.append(user_portfolio_errors_middleware)
+
+
+@web.middleware
+async def request_id_middleware(
+    request: web.Request,
+    handler: Handler,
+) -> web.StreamResponse:
+    request_id = uuid.uuid4()
+
+    with request_id_set(request_id):
+        response = await handler(request)
+        response.headers[REQUEST_ID_HEADER] = str(request_id)
+    return response
 
 
 @web.middleware
@@ -23,7 +42,11 @@ async def authorization_errors_middleware(
     try:
         return await handler(request)
     except (InvalidAuthorizationHeader, InvalidAccessToken) as e:
-        raise web.HTTPUnauthorized from e  # DO: log warning
+        request.app.logger.info(
+            "Authorization failed because: %s",
+            e.__class__.__name__,
+        )
+        raise web.HTTPUnauthorized from e
 
 
 @web.middleware

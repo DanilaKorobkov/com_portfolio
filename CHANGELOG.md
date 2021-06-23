@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - docker image building
 - find all portfolios view
 - examples and docs
+- logging support
+- request_id set to context var and response
 
 ### Changed
 - portfolio view

@@ -6,6 +6,7 @@ import factory
 from aiohttp.test_utils import TestClient, TestServer
 from faker import Faker
 
+from com_portfolio import log
 from com_portfolio.application import Application
 from com_portfolio.domain import Company, Portfolio, Position
 from com_portfolio.presentation import api
@@ -16,8 +17,9 @@ _FAKER_EN: Final = Faker(locale="en-US")
 
 @asynccontextmanager
 async def api_client_factory(app: Application) -> AsyncIterator[TestClient]:
-    web_app = api.create_web_app(app)
+    log.setup()
 
+    web_app = api.create_web_app(app)
     async with TestServer(web_app) as server:
         async with TestClient(server) as client:
             yield client
