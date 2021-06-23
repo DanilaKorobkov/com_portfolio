@@ -8,15 +8,6 @@ from .presentation.request_id import get_request_id
 LEVEL: Final = "INFO"
 DATETIME_FORMAT: Final = "%Y-%m-%d %H:%M:%S"
 
-ACCESS_LOG_FORMAT: Final = (
-    'request_id="%{X-Request-ID}o" '
-    'remote_addr="%a" '
-    'user_agent="%{User-Agent}i" '
-    'protocol="%r" '
-    'response_code="%s" '
-    'request_time="%Tf" '
-)
-
 
 def setup() -> None:
     config = {
