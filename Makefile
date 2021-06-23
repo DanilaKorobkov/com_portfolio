@@ -11,7 +11,7 @@ TESTS := tests
 
 PY_FILES := $(shell find $(SOURCES) $(TESTS) -name "*.py")
 
-SSH_KEY_PATH := $(HOME)/.ssh/id_rsa
+IMAGE_NAME := $(PROJECT)
 
 clean:
 	rm -rf .mypy_cache
@@ -62,6 +62,9 @@ format: isort trailing-comma auto-pep
 
 lint: flake8 mypy bandit pylint isort-lint trailing-comma-lint
 
-all: format lint test
+build: format lint test
+	DOCKER_BUILDKIT=1 docker build . -t $(IMAGE_NAME) --pull
+
+all: build
 
 .DEFAULT_GOAL := all

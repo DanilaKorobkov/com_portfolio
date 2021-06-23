@@ -142,7 +142,7 @@ docker = "^5.0"
 
 [package.source]
 type = "git"
-url = "git@github.com:DanilaKorobkov/com_redis_test_utils.git"
+url = "https://github.com/DanilaKorobkov/com_redis_test_utils.git"
 reference = "v0.1.0"
 resolved_reference = "7e7b4a0e95d9d20c3e532360c8f233ab18293583"
 
@@ -646,7 +646,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "c4fe493bc553d3205aeca0c2e163f67727291f9706e7d5297e833dd9fe4ce0fa"
+content-hash = "d89e5910d86b7128b3b68a553101cfa620541ee176eead53f7f659a24e111651"
 
 [metadata.files]
 add-trailing-comma = [

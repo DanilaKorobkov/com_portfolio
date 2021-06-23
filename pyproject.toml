@@ -22,7 +22,7 @@ environs = "^9.3"
 marshmallow = "^3.12"
 ujson = "^4.0"
 types-ujson = "^0.1"
-com_redis_test_utils = { tag="v0.1.0", git = "git@github.com:DanilaKorobkov/com_redis_test_utils.git" }
+com_redis_test_utils = { tag="v0.1.0", git = "https://github.com/DanilaKorobkov/com_redis_test_utils.git" }
 
 [tool.poetry.dev-dependencies]
 add-trailing-comma = "^2.1"
