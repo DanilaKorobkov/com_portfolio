@@ -11,3 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - project skeleton
 - redis portfolio repository
 - docker image building
+- find all portfolios view
+
+### Changed
+- portfolio view

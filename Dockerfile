@@ -7,7 +7,7 @@ COPY . .
 RUN pip install --upgrade --no-cache-dir pip wheel setuptools poetry
 
 RUN poetry build -f wheel
-RUN poetry export -f requirements.txt -o requirements.txt --without-hashes
+RUN poetry export --format requirements.txt --output requirements.txt --without-hashes
 RUN pip wheel -w dist -r requirements.txt
 
 

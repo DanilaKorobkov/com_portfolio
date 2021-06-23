@@ -1,42 +1,70 @@
+from collections import defaultdict
+from typing import Iterable
 from uuid import UUID
 
 import aioredis
 import attr
-from marshmallow import Schema, fields, post_load
 
 from com_portfolio.domain import (
     Portfolio,
     PortfolioRepositoryInterface,
+    PortfolioSchema,
     UserHasNoPortfolio,
 )
 
+PortfolioByUserId = dict[UUID, dict[str, Portfolio]]
 
-@attr.s(auto_attribs=True, slots=True, frozen=True)
+
 class FakePortfolioRepository(PortfolioRepositoryInterface):
-    _portfolio_by_user_id: dict[UUID, Portfolio] = attr.Factory(dict)
 
-    async def find(self, user_id: UUID) -> Portfolio:
+    def __init__(
+        self,
+        user_portfolios: dict[UUID, Iterable[Portfolio]] = None,
+    ) -> None:
+        draft: dict = defaultdict(dict)
+
+        if user_portfolios:
+            for user_id, portfolios in user_portfolios.items():
+                draft[user_id] = self._as_label_mapping(portfolios)
+
+        self._portfolios = dict(draft)
+
+    async def find_all(self, user_id: UUID) -> tuple[Portfolio, ...]:
         try:
-            return self._portfolio_by_user_id[user_id]
+            return tuple(
+                self._portfolios[user_id].values(),
+            )
+        except KeyError:
+            return tuple()
+
+    async def find(self, user_id: UUID, label: str) -> Portfolio:
+        try:
+            return self._portfolios[user_id][label]
         except KeyError as e:
             raise UserHasNoPortfolio from e
 
-
-class _PortfolioSchema(Schema):
-    id = fields.UUID(required=True)
-    user_id = fields.UUID(required=True)
-
-    @post_load
-    def release(self, data: dict, **_) -> Portfolio:
-        return Portfolio(**data)
+    @staticmethod
+    def _as_label_mapping(
+        portfolios: Iterable[Portfolio],
+    ) -> dict[str, Portfolio]:
+        return {
+            portfolio.label: portfolio
+            for portfolio in portfolios
+        }
 
 
 @attr.s(auto_attribs=True, slots=True, frozen=True)
 class RedisPortfolioRepository(PortfolioRepositoryInterface):
     _redis: aioredis.Redis
-    _schema: _PortfolioSchema = attr.ib(init=False, default=_PortfolioSchema())
 
-    async def find(self, user_id: UUID) -> Portfolio:
-        if raw := await self._redis.get(user_id.hex):
-            return self._schema.loads(raw)
+    async def find_all(self, user_id: UUID) -> tuple[Portfolio, ...]:
+        if user_portfolios := await self._redis.hgetall(str(user_id)):
+            schema = PortfolioSchema()
+            portfolios = list(user_portfolios.values())
+            return tuple(schema.loads(portfolio) for portfolio in portfolios)
+        return tuple()
+
+    async def find(self, user_id: UUID, label: str) -> Portfolio:
+        if raw := await self._redis.hget(str(user_id), label):
+            return PortfolioSchema().loads(raw)
         raise UserHasNoPortfolio
