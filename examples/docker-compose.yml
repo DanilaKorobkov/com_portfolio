@@ -1,0 +1,29 @@
+version: "3.7"
+
+services:
+
+  com_portfolio_http_api:
+    image: com_portfolio:latest
+    container_name: com_portfolio
+    environment:
+      - REDIS_URL=redis://com_portfolio_redis:6379/1
+      - REDIS_POOL_MIN_SIZE=${REDIS_POOL_MIN_SIZE}
+      - REDIS_POOL_MAX_SIZE=${REDIS_POOL_MAX_SIZE}
+    ports:
+      - 8080:8081
+    depends_on:
+      - com_portfolio_redis
+    networks:
+      - com_portfolio_network
+
+  com_portfolio_redis:
+    image: redis:6-alpine
+    container_name: com_portfolio_redis
+    expose:
+      - 6379
+    networks:
+      - com_portfolio_network
+
+networks:
+  com_portfolio_network:
+    name: com_portfolio_network

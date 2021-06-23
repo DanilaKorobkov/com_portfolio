@@ -1,3 +1,5 @@
+import uuid
+
 import aioredis
 from aiohttp import web
 from environs import Env
@@ -24,7 +26,11 @@ async def create_app() -> web.Application:
     )
 
     app = Application(
-        FakeIdentityProvider(),
+        FakeIdentityProvider(
+            user_id_by_token={
+                "abc": uuid.uuid4(),
+            },
+        ),
         RedisPortfolioRepository(redis_client),
     )
     web_app = api.create_web_app(app)
