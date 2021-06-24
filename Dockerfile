@@ -21,4 +21,4 @@ ENV PYTHONOPTIMIZE=1
 RUN pip install --upgrade pip==20.2.4
 RUN pip install --no-cache-dir --no-index dist/*.whl && rm -rf dist
 
-CMD ["gunicorn", "com_portfolio.presentation.api.main:create_web_app", "-c", "gunicorn.conf.py"]
+ENTRYPOINT ["gunicorn", "com_portfolio.presentation.api.main:create_web_app", "-c", "gunicorn.conf.py"]
