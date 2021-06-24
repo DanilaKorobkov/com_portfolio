@@ -105,9 +105,13 @@ class TestPortfolioView:
                 },
             ),
         )
+
         async with api_client_factory(app) as client:
             response = await client.get(f"/portfolios/{portfolio.label}")
             assert response.status == HTTPStatus.UNAUTHORIZED
+            assert await response.json() == {
+                "message": "Invalid authorization header",
+            }
 
     async def test__no_user_id_by_access_token(self) -> None:
         access_token = secrets.token_urlsafe()
@@ -116,12 +120,16 @@ class TestPortfolioView:
             FakeIdentityProvider(),
             FakePortfolioRepository(),
         )
+
         async with api_client_factory(app) as client:
             response = await client.get(
                 "/portfolios/portfolio_label",
                 headers=_make_authorization_header(access_token),
             )
             assert response.status == HTTPStatus.UNAUTHORIZED
+            assert await response.json() == {
+                "message": "Invalid access token",
+            }
 
     async def test__no_portfolio_by_user_id(self) -> None:
         user_id = uuid.uuid4()
@@ -142,7 +150,7 @@ class TestPortfolioView:
             )
             assert response.status == HTTPStatus.OK
             assert await response.json() == {
-                "message": "User has no portfolio",
+                "message": "Invalid portfolio label",
             }
 
 

@@ -1,5 +1,5 @@
 from .entities import Company, Portfolio, Position
-from .exceptions import UserHasNoPortfolio
+from .exceptions import InvalidPortfolioLabel
 from .repositories import PortfolioRepositoryInterface
 from .schemas import CompanySchema, PortfolioSchema, PositionSchema
 
@@ -14,5 +14,5 @@ __all__ = (
 
     "PortfolioRepositoryInterface",
 
-    "UserHasNoPortfolio",
+    "InvalidPortfolioLabel",
 )

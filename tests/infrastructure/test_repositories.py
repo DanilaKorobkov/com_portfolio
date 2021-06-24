@@ -3,7 +3,11 @@ import uuid
 import aioredis
 import pytest
 
-from com_portfolio.domain import Portfolio, PortfolioSchema, UserHasNoPortfolio
+from com_portfolio.domain import (
+    InvalidPortfolioLabel,
+    Portfolio,
+    PortfolioSchema,
+)
 from com_portfolio.infrastructure import RedisPortfolioRepository
 from com_portfolio.test_utils import PortfolioFactory, generate_portfolio_label
 
@@ -68,7 +72,7 @@ class TestRedisPortfolioRepository:
         )
 
         repository = RedisPortfolioRepository(com_redis_client)
-        with pytest.raises(UserHasNoPortfolio):
+        with pytest.raises(InvalidPortfolioLabel):
             await repository.find(user_id, label="missing_portfolio_label")
 
     async def test__find__user_has_no_portfolios(
@@ -78,5 +82,5 @@ class TestRedisPortfolioRepository:
         user_id = uuid.uuid4()
 
         repository = RedisPortfolioRepository(com_redis_client)
-        with pytest.raises(UserHasNoPortfolio):
+        with pytest.raises(InvalidPortfolioLabel):
             await repository.find(user_id, label="portfolio_label")

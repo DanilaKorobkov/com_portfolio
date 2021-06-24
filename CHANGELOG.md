@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - examples and docs
 - logging support
 - request_id set to context var and response
+- gunicorn support
 
 ### Changed
 - portfolio view

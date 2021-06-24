@@ -10,7 +10,7 @@ services:
       - REDIS_POOL_MIN_SIZE=${REDIS_POOL_MIN_SIZE}
       - REDIS_POOL_MAX_SIZE=${REDIS_POOL_MAX_SIZE}
     ports:
-      - 8080:8081
+      - 8080:8080
     depends_on:
       - com_portfolio_redis
     networks:

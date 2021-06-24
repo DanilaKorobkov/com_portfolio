@@ -1,2 +1,2 @@
-class UserHasNoPortfolio(Exception):
+class InvalidPortfolioLabel(Exception):
     pass

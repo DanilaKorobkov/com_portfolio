@@ -6,10 +6,10 @@ import aioredis
 import attr
 
 from com_portfolio.domain import (
+    InvalidPortfolioLabel,
     Portfolio,
     PortfolioRepositoryInterface,
     PortfolioSchema,
-    UserHasNoPortfolio,
 )
 
 PortfolioByUserId = dict[UUID, dict[str, Portfolio]]
@@ -41,7 +41,7 @@ class FakePortfolioRepository(PortfolioRepositoryInterface):
         try:
             return self._portfolios[user_id][label]
         except KeyError as e:
-            raise UserHasNoPortfolio from e
+            raise InvalidPortfolioLabel from e
 
     @staticmethod
     def _as_label_mapping(
@@ -67,4 +67,4 @@ class RedisPortfolioRepository(PortfolioRepositoryInterface):
     async def find(self, user_id: UUID, label: str) -> Portfolio:
         if raw := await self._redis.hget(str(user_id), label):
             return PortfolioSchema().loads(raw)
-        raise UserHasNoPortfolio
+        raise InvalidPortfolioLabel

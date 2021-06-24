@@ -2,10 +2,11 @@ import uuid
 from http import HTTPStatus
 from typing import Final
 
+import inflection
 from aiohttp import web
 
 from com_portfolio.application import InvalidAccessToken
-from com_portfolio.domain import UserHasNoPortfolio
+from com_portfolio.domain import InvalidPortfolioLabel
 from com_portfolio.presentation.request_id import request_id_set
 
 from .exceptions import InvalidAuthorizationHeader
@@ -42,11 +43,13 @@ async def authorization_errors_middleware(
     try:
         return await handler(request)
     except (InvalidAuthorizationHeader, InvalidAccessToken) as e:
-        request.app.logger.info(
-            "Authorization failed because: %s",
-            e.__class__.__name__,
-        )
-        raise web.HTTPUnauthorized from e
+        message = humanize_exception(e)
+        request.app.logger.info(message)
+
+        response_body = {
+            "message": message,
+        }
+        return make_json_response(response_body, HTTPStatus.UNAUTHORIZED)
 
 
 @web.middleware
@@ -56,8 +59,14 @@ async def user_portfolio_errors_middleware(
 ) -> web.StreamResponse:
     try:
         return await handler(request)
-    except UserHasNoPortfolio:
+    except InvalidPortfolioLabel as e:
         response_body = {
-            "message": "User has no portfolio",
+            "message": humanize_exception(e),
         }
         return make_json_response(response_body, HTTPStatus.OK)
+
+
+def humanize_exception(exc: Exception) -> str:
+    return inflection.humanize(
+        inflection.underscore(exc.__class__.__name__),
+    )
