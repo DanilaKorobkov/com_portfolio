@@ -1,6 +1,7 @@
 import uuid
 
 import aioredis
+import uvloop
 from aiohttp import web
 from environs import Env
 
@@ -11,6 +12,8 @@ from com_portfolio.infrastructure import (
     RedisPortfolioRepository,
 )
 from com_portfolio.presentation import api
+
+uvloop.install()
 
 
 def main() -> None:
