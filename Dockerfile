@@ -16,6 +16,8 @@ FROM python:3.9-slim-buster as deploy
 COPY --from=builder dist dist
 COPY --from=builder gunicorn.conf.py ./
 
+ENV PYTHONOPTIMIZE=1
+
 RUN pip install --upgrade pip==20.2.4
 RUN pip install --no-cache-dir --no-index dist/*.whl && rm -rf dist
 
