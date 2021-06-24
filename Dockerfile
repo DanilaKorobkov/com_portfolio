@@ -6,9 +6,9 @@ COPY . .
 
 RUN pip install --upgrade --no-cache-dir pip wheel setuptools poetry
 
-RUN poetry build -f wheel
+RUN poetry build --format wheel
 RUN poetry export --format requirements.txt --output requirements.txt --without-hashes
-RUN pip wheel -w dist -r requirements.txt
+RUN pip wheel --wheel-dir dist --requirement requirements.txt
 
 
 FROM python:3.9-slim-buster as deploy
