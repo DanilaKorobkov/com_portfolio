@@ -31,14 +31,14 @@ async def create_web_app() -> web.Application:
     )
 
     app = Application(
-        FakeIdentityProvider(
-            user_id_by_token={
-                "abc": uuid.uuid4(),
-            },
-        ),
         RedisPortfolioRepository(redis_client),
     )
-    web_app = api.create_web_app(app)
+    identity_provider = FakeIdentityProvider(
+        user_id_by_token={
+            "abc": uuid.uuid4(),
+        },
+    )
+    web_app = api.create_web_app(app, identity_provider)
 
     async def _close_redis_client(_: web.Application) -> None:
         redis_client.close()

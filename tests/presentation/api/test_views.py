@@ -19,18 +19,18 @@ class TestPortfoliosView:
 
         portfolios = PortfolioFactory.build_batch(size=2)
         app = Application(
-            FakeIdentityProvider(
-                user_id_by_token={
-                    access_token: user_id,
-                },
-            ),
             FakePortfolioRepository(
                 user_portfolios={
                     user_id: portfolios,
                 },
             ),
         )
-        async with api_client_factory(app) as client:
+        identity_provider = FakeIdentityProvider(
+            user_id_by_token={
+                access_token: user_id,
+            },
+        )
+        async with api_client_factory(app, identity_provider) as client:
             response = await client.get(
                 "/portfolios",
                 headers=_make_authorization_header(access_token),
@@ -45,14 +45,14 @@ class TestPortfoliosView:
         access_token = secrets.token_urlsafe()
 
         app = Application(
-            FakeIdentityProvider(
-                user_id_by_token={
-                    access_token: user_id,
-                },
-            ),
             FakePortfolioRepository(),
         )
-        async with api_client_factory(app) as client:
+        identity_provider = FakeIdentityProvider(
+            user_id_by_token={
+                access_token: user_id,
+            },
+        )
+        async with api_client_factory(app, identity_provider) as client:
             response = await client.get(
                 "/portfolios",
                 headers=_make_authorization_header(access_token),
@@ -69,18 +69,18 @@ class TestPortfolioView:
 
         portfolio = PortfolioFactory.build()
         app = Application(
-            FakeIdentityProvider(
-                user_id_by_token={
-                    access_token: user_id,
-                },
-            ),
             FakePortfolioRepository(
                 user_portfolios={
                     user_id: [portfolio],
                 },
             ),
         )
-        async with api_client_factory(app) as client:
+        identity_provider = FakeIdentityProvider(
+            user_id_by_token={
+                access_token: user_id,
+            },
+        )
+        async with api_client_factory(app, identity_provider) as client:
             response = await client.get(
                 f"/portfolios/{portfolio.label}",
                 headers=_make_authorization_header(access_token),
@@ -94,19 +94,19 @@ class TestPortfolioView:
 
         portfolio = PortfolioFactory.build()
         app = Application(
-            FakeIdentityProvider(
-                user_id_by_token={
-                    access_token: user_id,
-                },
-            ),
             FakePortfolioRepository(
                 user_portfolios={
                     user_id: [portfolio],
                 },
             ),
         )
+        identity_provider = FakeIdentityProvider(
+            user_id_by_token={
+                access_token: user_id,
+            },
+        )
 
-        async with api_client_factory(app) as client:
+        async with api_client_factory(app, identity_provider) as client:
             response = await client.get(f"/portfolios/{portfolio.label}")
             assert response.status == HTTPStatus.UNAUTHORIZED
             assert await response.json() == {
@@ -117,11 +117,11 @@ class TestPortfolioView:
         access_token = secrets.token_urlsafe()
 
         app = Application(
-            FakeIdentityProvider(),
             FakePortfolioRepository(),
         )
+        identity_provider = FakeIdentityProvider()
 
-        async with api_client_factory(app) as client:
+        async with api_client_factory(app, identity_provider) as client:
             response = await client.get(
                 "/portfolios/portfolio_label",
                 headers=_make_authorization_header(access_token),
@@ -136,14 +136,14 @@ class TestPortfolioView:
         access_token = secrets.token_urlsafe()
 
         app = Application(
-            FakeIdentityProvider(
-                user_id_by_token={
-                    access_token: user_id,
-                },
-            ),
             FakePortfolioRepository(),
         )
-        async with api_client_factory(app) as client:
+        identity_provider = FakeIdentityProvider(
+            user_id_by_token={
+                access_token: user_id,
+            },
+        )
+        async with api_client_factory(app, identity_provider) as client:
             response = await client.get(
                 "/portfolios/missing_portfolio_label",
                 headers=_make_authorization_header(access_token),

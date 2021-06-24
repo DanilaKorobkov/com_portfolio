@@ -5,6 +5,7 @@ from uuid import UUID
 import aioredis
 import attr
 
+from com_portfolio.context_vars import USER_ID
 from com_portfolio.domain import (
     InvalidPortfolioLabel,
     Portfolio,
@@ -29,17 +30,17 @@ class FakePortfolioRepository(PortfolioRepositoryInterface):
 
         self._portfolios = dict(draft)
 
-    async def find_all(self, user_id: UUID) -> tuple[Portfolio, ...]:
+    async def find_all(self) -> tuple[Portfolio, ...]:
         try:
             return tuple(
-                self._portfolios[user_id].values(),
+                self._portfolios[USER_ID.get()].values(),
             )
         except KeyError:
             return tuple()
 
-    async def find(self, user_id: UUID, label: str) -> Portfolio:
+    async def find(self, label: str) -> Portfolio:
         try:
-            return self._portfolios[user_id][label]
+            return self._portfolios[USER_ID.get()][label]
         except KeyError as e:
             raise InvalidPortfolioLabel from e
 
@@ -57,14 +58,14 @@ class FakePortfolioRepository(PortfolioRepositoryInterface):
 class RedisPortfolioRepository(PortfolioRepositoryInterface):
     _redis: aioredis.Redis
 
-    async def find_all(self, user_id: UUID) -> tuple[Portfolio, ...]:
-        if user_portfolios := await self._redis.hgetall(str(user_id)):
+    async def find_all(self) -> tuple[Portfolio, ...]:
+        if user_portfolios := await self._redis.hgetall(str(USER_ID.get())):
             schema = PortfolioSchema()
             portfolios = list(user_portfolios.values())
             return tuple(schema.loads(portfolio) for portfolio in portfolios)
         return tuple()
 
-    async def find(self, user_id: UUID, label: str) -> Portfolio:
-        if raw := await self._redis.hget(str(user_id), label):
+    async def find(self, label: str) -> Portfolio:
+        if raw := await self._redis.hget(str(USER_ID.get()), label):
             return PortfolioSchema().loads(raw)
         raise InvalidPortfolioLabel

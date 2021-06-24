@@ -2,18 +2,13 @@ import attr
 
 from com_portfolio.domain import Portfolio, PortfolioRepositoryInterface
 
-from .identity_providers import IdentityProviderInterface
-
 
 @attr.s(auto_attribs=True, slots=True, frozen=True)
 class Application:
-    _identity_provider: IdentityProviderInterface
     _portfolios: PortfolioRepositoryInterface
 
-    async def get_portfolios(self, access_token: str) -> tuple[Portfolio, ...]:
-        user_id = await self._identity_provider.get_user_id(access_token)
-        return await self._portfolios.find_all(user_id)
+    async def get_portfolios(self) -> tuple[Portfolio, ...]:
+        return await self._portfolios.find_all()
 
-    async def get_portfolio(self, access_token: str, label: str) -> Portfolio:
-        user_id = await self._identity_provider.get_user_id(access_token)
-        return await self._portfolios.find(user_id, label)
+    async def get_portfolio(self, label: str) -> Portfolio:
+        return await self._portfolios.find(label)

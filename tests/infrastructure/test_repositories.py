@@ -3,6 +3,7 @@ import uuid
 import aioredis
 import pytest
 
+from com_portfolio.context_vars import USER_ID, context_var_set
 from com_portfolio.domain import (
     InvalidPortfolioLabel,
     Portfolio,
@@ -30,7 +31,8 @@ class TestRedisPortfolioRepository:
         )
 
         repository = RedisPortfolioRepository(com_redis_client)
-        assert await repository.find_all(user_id) == (portfolio,)
+        with context_var_set(USER_ID, user_id):
+            assert await repository.find_all() == (portfolio,)
 
     async def test__find_all__user_has_no_portfolios(
         self,
@@ -39,7 +41,8 @@ class TestRedisPortfolioRepository:
         user_id = uuid.uuid4()
 
         repository = RedisPortfolioRepository(com_redis_client)
-        assert await repository.find_all(user_id) == tuple()
+        with context_var_set(USER_ID, user_id):
+            assert await repository.find_all() == tuple()
 
     async def test__find__hit(self, com_redis_client: aioredis.Redis) -> None:
         user_id = uuid.uuid4()
@@ -54,7 +57,8 @@ class TestRedisPortfolioRepository:
         )
 
         repository = RedisPortfolioRepository(com_redis_client)
-        assert await repository.find(user_id, label) == portfolio
+        with context_var_set(USER_ID, user_id):
+            assert await repository.find(label) == portfolio
 
     async def test__find__invalid_portfolio_label(
         self,
@@ -72,8 +76,9 @@ class TestRedisPortfolioRepository:
         )
 
         repository = RedisPortfolioRepository(com_redis_client)
-        with pytest.raises(InvalidPortfolioLabel):
-            await repository.find(user_id, label="missing_portfolio_label")
+        with context_var_set(USER_ID, user_id):
+            with pytest.raises(InvalidPortfolioLabel):
+                await repository.find("missing_portfolio_label")
 
     async def test__find__user_has_no_portfolios(
         self,
@@ -82,5 +87,6 @@ class TestRedisPortfolioRepository:
         user_id = uuid.uuid4()
 
         repository = RedisPortfolioRepository(com_redis_client)
-        with pytest.raises(InvalidPortfolioLabel):
-            await repository.find(user_id, label="portfolio_label")
+        with context_var_set(USER_ID, user_id):
+            with pytest.raises(InvalidPortfolioLabel):
+                await repository.find("portfolio_label")

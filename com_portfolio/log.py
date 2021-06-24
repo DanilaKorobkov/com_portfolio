@@ -3,7 +3,7 @@ from typing import Final
 
 from aiohttp.log import access_logger, web_logger
 
-from .presentation.request_id import get_request_id
+from com_portfolio.context_vars import REQUEST_ID
 
 
 def setup() -> None:
@@ -26,7 +26,7 @@ class ServiceNameFilter(logging.Filter):
 class RequestIDFilter(logging.Filter):
 
     def filter(self, record: logging.LogRecord) -> bool:
-        request_id = get_request_id() or "-"
+        request_id = REQUEST_ID.get("-")
         setattr(record, "request_id", request_id)
 
         return super().filter(record)
