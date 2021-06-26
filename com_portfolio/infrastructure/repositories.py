@@ -69,6 +69,9 @@ class RedisPortfolioRepository(PortfolioRepositoryInterface):
     _redis: aioredis.Redis
 
     async def find_all(self) -> tuple[Portfolio, ...]:
+        # pylint: disable=fixme
+        # TODO: transaction
+
         user_keys_pattern = f"{self._get_user_key_prefix()}:*"
         user_keys = await self._redis.keys(user_keys_pattern)
         if not user_keys:
