@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - portfolio view
+- redis portfolio repository to use flat keys
 
 ### Refactoring
 - application creation in tests

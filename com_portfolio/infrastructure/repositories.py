@@ -69,15 +69,19 @@ class RedisPortfolioRepository(PortfolioRepositoryInterface):
     _redis: aioredis.Redis
 
     async def find_all(self) -> tuple[Portfolio, ...]:
-        if user_portfolios := await self._redis.hgetall(self._get_user_key()):
-            schema = PortfolioSchema()
-            portfolios = list(user_portfolios.values())
-            return tuple(schema.loads(portfolio) for portfolio in portfolios)
-        return tuple()
+        user_keys_pattern = f"{self._get_user_key_prefix()}:*"
+        user_keys = await self._redis.keys(user_keys_pattern)
+        if not user_keys:
+            return tuple()
+
+        dumps = await self._redis.mget(*user_keys)
+        schema = PortfolioSchema()
+        return tuple(schema.loads(dump) for dump in dumps)
 
     async def find(self, label: str) -> Portfolio:
-        if raw := await self._redis.hget(self._get_user_key(), label):
-            return PortfolioSchema().loads(raw)
+        key = self._get_key(label)
+        if dump := await self._redis.get(key):
+            return PortfolioSchema().loads(dump)
         raise MissingPortfolio
 
     async def add(self, label: str) -> UUID:
@@ -85,12 +89,14 @@ class RedisPortfolioRepository(PortfolioRepositoryInterface):
             id=uuid.uuid4(),
             label=label,
         )
-        value = {
-            portfolio.label: PortfolioSchema().dumps(portfolio),
-        }
-        await self._redis.hmset_dict(self._get_user_key(), value)
+        dump = PortfolioSchema().dumps(portfolio)
+        await self._redis.set(self._get_key(label), dump)
         return portfolio.id
 
     @staticmethod
-    def _get_user_key() -> str:
+    def _get_key(label: str) -> str:
+        return f"{RedisPortfolioRepository._get_user_key_prefix()}:{label}"
+
+    @staticmethod
+    def _get_user_key_prefix() -> str:
         return str(USER_ID.get())

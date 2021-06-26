@@ -86,11 +86,9 @@ class TestRedisPortfolioRepository:
         label = generate_portfolio_label()
 
         portfolio: Portfolio = PortfolioFactory.build()
-        await com_redis_client.hmset_dict(
-            str(user_id),
-            {
-                label: PortfolioSchema().dumps(portfolio),
-            },
+        await com_redis_client.set(
+            f"{user_id}:{label}",
+            PortfolioSchema().dumps(portfolio),
         )
 
         repository = RedisPortfolioRepository(com_redis_client)
@@ -112,11 +110,9 @@ class TestRedisPortfolioRepository:
         label = generate_portfolio_label()
 
         portfolio: Portfolio = PortfolioFactory.build()
-        await com_redis_client.hmset_dict(
-            str(user_id),
-            {
-                label: PortfolioSchema().dumps(portfolio),
-            },
+        await com_redis_client.set(
+            f"{user_id}:{label}",
+            PortfolioSchema().dumps(portfolio),
         )
 
         repository = RedisPortfolioRepository(com_redis_client)
@@ -130,11 +126,9 @@ class TestRedisPortfolioRepository:
         label = generate_portfolio_label()
 
         portfolio: Portfolio = PortfolioFactory.build()
-        await com_redis_client.hmset_dict(
-            str(user_id),
-            {
-                label: PortfolioSchema().dumps(portfolio),
-            },
+        await com_redis_client.set(
+            f"{user_id}:{label}",
+            PortfolioSchema().dumps(portfolio),
         )
 
         repository = RedisPortfolioRepository(com_redis_client)
