@@ -28,13 +28,31 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{URL}}/portfolios/label",
+					"raw": "{{URL}}/portfolios/IB",
 					"host": [
 						"{{URL}}"
 					],
 					"path": [
 						"portfolios",
-						"label"
+						"IB"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "create new portfolio",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{URL}}/portfolios/IB",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"portfolios",
+						"IB"
 					]
 				}
 			},

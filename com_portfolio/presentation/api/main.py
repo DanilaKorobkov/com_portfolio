@@ -7,6 +7,7 @@ from environs import Env
 
 from com_portfolio import log
 from com_portfolio.application import Application
+from com_portfolio.domain import PortfolioService
 from com_portfolio.infrastructure import (
     FakeIdentityProvider,
     RedisPortfolioRepository,
@@ -31,14 +32,16 @@ async def create_web_app() -> web.Application:
     )
 
     app = Application(
-        RedisPortfolioRepository(redis_client),
+        PortfolioService(
+            RedisPortfolioRepository(redis_client),
+        ),
+        identity_provider=FakeIdentityProvider(
+            user_id_by_token={
+                "abc": uuid.uuid4(),
+            },
+        ),
     )
-    identity_provider = FakeIdentityProvider(
-        user_id_by_token={
-            "abc": uuid.uuid4(),
-        },
-    )
-    web_app = api.create_web_app(app, identity_provider)
+    web_app = api.create_web_app(app)
 
     async def _close_redis_client(_: web.Application) -> None:
         redis_client.close()

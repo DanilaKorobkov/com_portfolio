@@ -1,3 +1,4 @@
+from typing import Mapping
 from uuid import UUID
 
 import attr
@@ -10,7 +11,7 @@ from com_portfolio.application import (
 
 @attr.s(auto_attribs=True, slots=True, frozen=True)
 class FakeIdentityProvider(IdentityProviderInterface):
-    _user_id_by_token: dict[str, UUID] = attr.Factory(dict)
+    _user_id_by_token: Mapping[str, UUID] = attr.Factory(dict)
 
     async def get_user_id(self, access_token: str) -> UUID:
         try:

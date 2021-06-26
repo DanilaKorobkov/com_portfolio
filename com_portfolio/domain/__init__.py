@@ -1,7 +1,8 @@
 from .entities import Company, Portfolio, Position
-from .exceptions import InvalidPortfolioLabel
+from .exceptions import MissingPortfolio, PortfolioAlreadyExists
 from .repositories import PortfolioRepositoryInterface
 from .schemas import CompanySchema, PortfolioSchema, PositionSchema
+from .services import PortfolioService
 
 __all__ = (
     "Portfolio",
@@ -12,7 +13,10 @@ __all__ = (
     "PositionSchema",
     "CompanySchema",
 
+    "PortfolioService",
+
     "PortfolioRepositoryInterface",
 
-    "InvalidPortfolioLabel",
+    "MissingPortfolio",
+    "PortfolioAlreadyExists",
 )

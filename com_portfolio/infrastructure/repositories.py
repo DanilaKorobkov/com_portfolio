@@ -1,5 +1,6 @@
+import uuid
 from collections import defaultdict
-from typing import Iterable
+from typing import Iterable, Mapping
 from uuid import UUID
 
 import aioredis
@@ -7,7 +8,7 @@ import attr
 
 from com_portfolio.context_vars import USER_ID
 from com_portfolio.domain import (
-    InvalidPortfolioLabel,
+    MissingPortfolio,
     Portfolio,
     PortfolioRepositoryInterface,
     PortfolioSchema,
@@ -20,7 +21,7 @@ class FakePortfolioRepository(PortfolioRepositoryInterface):
 
     def __init__(
         self,
-        user_portfolios: dict[UUID, Iterable[Portfolio]] = None,
+        user_portfolios: Mapping[UUID, Iterable[Portfolio]] = None,
     ) -> None:
         draft: dict = defaultdict(dict)
 
@@ -42,7 +43,16 @@ class FakePortfolioRepository(PortfolioRepositoryInterface):
         try:
             return self._portfolios[USER_ID.get()][label]
         except KeyError as e:
-            raise InvalidPortfolioLabel from e
+            raise MissingPortfolio from e
+
+    async def add(self, label: str) -> UUID:
+        portfolio = Portfolio(
+            id=uuid.uuid4(),
+            label=label,
+        )
+        user_portfolios = self._portfolios.setdefault(USER_ID.get(), {})
+        user_portfolios[label] = portfolio
+        return portfolio.id
 
     @staticmethod
     def _as_label_mapping(
@@ -59,13 +69,28 @@ class RedisPortfolioRepository(PortfolioRepositoryInterface):
     _redis: aioredis.Redis
 
     async def find_all(self) -> tuple[Portfolio, ...]:
-        if user_portfolios := await self._redis.hgetall(str(USER_ID.get())):
+        if user_portfolios := await self._redis.hgetall(self._get_user_key()):
             schema = PortfolioSchema()
             portfolios = list(user_portfolios.values())
             return tuple(schema.loads(portfolio) for portfolio in portfolios)
         return tuple()
 
     async def find(self, label: str) -> Portfolio:
-        if raw := await self._redis.hget(str(USER_ID.get()), label):
+        if raw := await self._redis.hget(self._get_user_key(), label):
             return PortfolioSchema().loads(raw)
-        raise InvalidPortfolioLabel
+        raise MissingPortfolio
+
+    async def add(self, label: str) -> UUID:
+        portfolio = Portfolio(
+            id=uuid.uuid4(),
+            label=label,
+        )
+        value = {
+            portfolio.label: PortfolioSchema().dumps(portfolio),
+        }
+        await self._redis.hmset_dict(self._get_user_key(), value)
+        return portfolio.id
+
+    @staticmethod
+    def _get_user_key() -> str:
+        return str(USER_ID.get())

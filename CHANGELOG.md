@@ -16,7 +16,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - logging support
 - request_id set to context var and response
 - gunicorn support
+- add new portfolio view
 
 ### Changed
 - portfolio view
-- authorize user in middleware
+
+### Refactoring
+- application creation in tests

@@ -11,7 +11,10 @@ class Entity:
 @attr.s(auto_attribs=True, slots=True, frozen=True)
 class Portfolio(Entity):
     label: str
-    positions: tuple["Position"] = attr.ib(converter=tuple)
+    positions: tuple["Position", ...] = attr.ib(
+        converter=tuple,
+        default=tuple(),
+    )
 
 
 @attr.s(auto_attribs=True, slots=True, frozen=True)

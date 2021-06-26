@@ -1,28 +1,44 @@
 import uuid
 from contextlib import asynccontextmanager
-from typing import AsyncIterator, Final
+from typing import AsyncIterator, Final, Iterable, Mapping
+from uuid import UUID
 
 import factory
 from aiohttp.test_utils import TestClient, TestServer
 from faker import Faker
 
 from com_portfolio import log
-from com_portfolio.application import Application, IdentityProviderInterface
-from com_portfolio.domain import Company, Portfolio, Position
+from com_portfolio.application import Application
+from com_portfolio.domain import Company, Portfolio, PortfolioService, Position
+from com_portfolio.infrastructure import (
+    FakeIdentityProvider,
+    FakePortfolioRepository,
+)
 from com_portfolio.presentation import api
 
 _FAKER_RU: Final = Faker(locale="ru-RU")
 _FAKER_EN: Final = Faker(locale="en-US")
 
 
+def create_application(
+    user_portfolios: Mapping[UUID, Iterable[Portfolio]] = None,
+    user_id_by_token: Mapping[str, UUID] = None,
+) -> Application:
+    return Application(
+        PortfolioService(
+            FakePortfolioRepository(user_portfolios),
+        ),
+        FakeIdentityProvider(
+            user_id_by_token or {},
+        ),
+    )
+
+
 @asynccontextmanager
-async def api_client_factory(
-    app: Application,
-    identity_provider: IdentityProviderInterface,
-) -> AsyncIterator[TestClient]:
+async def api_client_factory(app: Application) -> AsyncIterator[TestClient]:
     log.setup()
 
-    web_app = api.create_web_app(app, identity_provider)
+    web_app = api.create_web_app(app)
     async with TestServer(web_app) as server:
         async with TestClient(server) as client:
             yield client
