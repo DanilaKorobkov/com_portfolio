@@ -33,8 +33,8 @@ class TestPortfoliosView:
             )
             assert response.status == HTTPStatus.OK
 
-            expected = PortfolioSchema(many=True).dump(portfolios)
-            assert await response.json() == expected
+            schema = PortfolioSchema(many=True, exclude=("id",))
+            assert await response.json() == schema.dump(portfolios)
 
     async def test__user_has_no_portfolios(self) -> None:
         user_id = uuid.uuid4()

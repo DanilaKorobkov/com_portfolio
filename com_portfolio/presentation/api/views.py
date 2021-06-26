@@ -19,15 +19,16 @@ async def portfolios_view(request: web.Request) -> web.Response:
     app = get_app(request.app)
     portfolios = await app.get_portfolios(access_token)
 
-    response_body = PortfolioSchema(many=True).dump(portfolios)
+    schema = PortfolioSchema(many=True, exclude=("id",))
+    response_body = schema.dump(portfolios)
     return make_json_response(response_body)
 
 
 async def portfolio_view(request: web.Request) -> web.Response:
     access_token = _get_access_token(request)
-    app = get_app(request.app)
-
     label = request.match_info["label"]
+
+    app = get_app(request.app)
     portfolio = await app.get_portfolio(access_token, label)
 
     schema = PortfolioSchema(exclude=("id",))
@@ -37,9 +38,9 @@ async def portfolio_view(request: web.Request) -> web.Response:
 
 async def create_new_portfolio_view(request: web.Request) -> web.Response:
     access_token = _get_access_token(request)
-    app = get_app(request.app)
-
     label = request.match_info["label"]
+
+    app = get_app(request.app)
     await app.create_portfolio(access_token, label)
 
     response_body = {
